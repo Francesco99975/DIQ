@@ -1,7 +1,11 @@
 import { gql, useQuery } from "@apollo/client";
 import { Search } from "./components/search/Search";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import debounce from "lodash/debounce";
+import Input from "./components/UI/Input";
+import Button from "./components/UI/Button";
+import Etf from "./types/etf";
+import EtfDetail from "./components/Etf/EtfDetail";
 
 const searchEtfsQuery = gql`
   query SearchEtfsQuery($search: String!) {
@@ -27,19 +31,11 @@ const searchEtfsQuery = gql`
 //   }
 // `;
 
-interface Etf {
-  symbol: string;
-  name: string;
-  price: number;
-  dividend_yield: string;
-  expense_ratio: string;
-}
-
 const getTrueYield = (div_yield: string, expense: string) => {
-  const yd: number = +div_yield.substring(0, div_yield.length - 2);
-  const xp: number = +expense.substring(0, expense.length - 2);
+  const yd: number = +div_yield.substring(0, div_yield.length - 1);
+  const xp: number = +expense.substring(0, expense.length - 1);
 
-  return yd - xp;
+  return (yd * 100 - xp * 100) / 100;
 };
 
 function App() {
@@ -50,7 +46,9 @@ function App() {
   const principalRef = useRef<HTMLInputElement>(null);
   const [yearly, setYearly] = useState<number | null>(null);
   const [monthly, setMonthly] = useState<number | null>(null);
+  const [quarterly, setQuarterly] = useState<number | null>(null);
   const [DRIP, setDRIP] = useState<boolean>(false);
+  const [dripMulti, setDripMulti] = useState<number | null>(null);
 
   const { data, loading } = useQuery(searchEtfsQuery, {
     variables: { search },
@@ -68,6 +66,11 @@ function App() {
       );
       console.log(filter);
       setEtf(filter[0] || null);
+      setYearly(null);
+      setMonthly(null);
+      setQuarterly(null);
+      setDRIP(false);
+      setDripMulti(null);
     }
   }, [data, selected]);
 
@@ -82,18 +85,22 @@ function App() {
           : +principalRef.current?.value) /
           1000.0);
       const monthlyGain = yearlyGain / 12;
+      const quarterlyGain = yearlyGain / 4;
       const DRIP = monthlyGain >= etf.price;
+      const multi = Math.round(monthlyGain / etf.price);
 
       setYearly(yearlyGain);
       setMonthly(monthlyGain);
+      setQuarterly(quarterlyGain);
       setDRIP(DRIP);
+      setDripMulti(multi);
     }
   };
 
   const setSearchDebounced = debounce(setSearch, 500);
 
   return (
-    <div className="flex w-full flex-col justify-around items-center mt-5">
+    <>
       <Search
         loading={loading}
         data={data ? data.searchEtfs.map((x: any) => x.name) : []}
@@ -104,43 +111,57 @@ function App() {
       ></Search>
 
       {etf !== null && (
-        <div className="flex justify-between w-full">
-          <div className="flex flex-col w-full justify-center items-center">
-            <span>Name: {etf.name}</span>
-            <span>Price: {etf.price}</span>
-            <span>Full Yield: {etf.dividend_yield}</span>
-            <span>Expense Ratio: {etf.expense_ratio}</span>
-            <span>
-              True Yield:{" "}
-              {getTrueYield(etf.dividend_yield, etf.expense_ratio)
-                .toFixed(2)
-                .toString() + "%"}
-            </span>
+        <div className="flex flex-col md:flex-row justify-between items-center w-full">
+          <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
+            <h1>Information</h1>
+            <EtfDetail label="Symbol" value={etf.symbol} />
+            <EtfDetail label="Price" value={"$" + etf.price.toFixed(2)} />
+            <EtfDetail label="Full Yield" value={etf.dividend_yield} />
+            <EtfDetail label="Expense Ratio" value={etf.expense_ratio} />
+            <EtfDetail
+              label="True Yield"
+              value={
+                getTrueYield(etf.dividend_yield, etf.expense_ratio)
+                  .toFixed(2)
+                  .toString() + "%"
+              }
+            />
           </div>
+
           <div className="flex flex-col w-full justify-center items-center p-5">
-            <div className="flex w-full justify-center items-center">
-              <label className="m-2" htmlFor="principal">
-                Enter Principal Amount
-              </label>
-              <input type="number" id="principal" ref={principalRef} min="0" />
-            </div>
-            <button
-              className="p-2 bg-slate-600 border-l-amber-300 text-white"
+            <Input
+              id="principal"
+              type="number"
+              label="Enter Principal Amount"
+              ref={principalRef}
+            />
+            <Button
+              className=" border-2 border-green-700 text-green-700"
+              type="button"
               onClick={handleCalc}
             >
               Calculate
-            </button>
-            {yearly && monthly && (
-              <div className="flex flex-col w-full justify-center items-center">
-                <span>Yearly: ${yearly.toFixed(2)}</span>
-                <span>Monthly: ${monthly.toFixed(2)}</span>
-                <span>DRIP: {DRIP ? "YES" : "NO"}</span>
-              </div>
-            )}
+            </Button>
           </div>
+
+          {yearly && monthly && quarterly && dripMulti && (
+            <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
+              <h1>Results</h1>
+              <EtfDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
+              <EtfDetail label="Monthly" value={"$" + monthly.toFixed(2)} />
+              <EtfDetail label="Quarterly" value={"$" + quarterly.toFixed(2)} />
+              <EtfDetail
+                label="DRIP"
+                value={
+                  (DRIP ? "YES" : "NO") +
+                  (dripMulti > 0 ? "(x" + dripMulti + ")" : "")
+                }
+              />
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
