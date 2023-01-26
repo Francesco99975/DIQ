@@ -59,12 +59,11 @@ function App() {
   // });
 
   useEffect(() => {
-    console.log(selected);
     if (data && selected) {
       const filter = (data.searchEtfs as Array<Etf>).filter(
         (x: Etf) => x.name === selected
       );
-      console.log(filter);
+
       setEtf(filter[0] || null);
       setYearly(null);
       setMonthly(null);
@@ -145,7 +144,7 @@ function App() {
             </Button>
           </div>
 
-          {yearly && monthly && quarterly && dripMulti ? (
+          {yearly && monthly && quarterly && dripMulti !== null ? (
             <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
               <h1>Results</h1>
               <EtfDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
