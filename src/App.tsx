@@ -101,6 +101,7 @@ function App() {
 
   return (
     <>
+      <h1 className="m-5 text-2xl text-green-700">ETF Dividend Calculator</h1>
       <Search
         loading={loading}
         data={data ? data.searchEtfs.map((x: any) => x.name) : []}
@@ -110,7 +111,7 @@ function App() {
         setSelected={setSelected}
       ></Search>
 
-      {etf !== null && (
+      {etf !== null ? (
         <div className="flex flex-col md:flex-row justify-between items-center w-full">
           <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
             <h1>Information</h1>
@@ -144,7 +145,7 @@ function App() {
             </Button>
           </div>
 
-          {yearly && monthly && quarterly && dripMulti && (
+          {yearly && monthly && quarterly && dripMulti ? (
             <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
               <h1>Results</h1>
               <EtfDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
@@ -158,7 +159,17 @@ function App() {
                 }
               />
             </div>
+          ) : (
+            <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
+              <p className="text-center">Results will be displayed here</p>
+            </div>
           )}
+        </div>
+      ) : (
+        <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
+          <p className="text-center">
+            Search Etfs to know how much dividend you can gain
+          </p>
         </div>
       )}
     </>
