@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import { Search } from "./components/search/Search";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import debounce from "lodash/debounce";
 import Input from "./components/UI/Input";
 import Button from "./components/UI/Button";
