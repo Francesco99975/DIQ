@@ -1,15 +1,16 @@
 import { gql, useQuery } from "@apollo/client";
 import { Search } from "./components/search/Search";
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import debounce from "lodash/debounce";
 import Input from "./components/UI/Input";
 import Button from "./components/UI/Button";
 import Etf from "./types/etf";
 import EtfDetail from "./components/Etf/EtfDetail";
+import Sample from "./components/Sample/Sample";
 
-const searchEtfsQuery = gql`
-  query SearchEtfsQuery($search: String!) {
-    searchEtfs(search: $search) {
+const searchDividendEtfsQuery = gql`
+  query SearchDividendEtfsQuery($search: String!) {
+    searchDividendEtfs(search: $search) {
       symbol
       name
       price
@@ -50,7 +51,7 @@ function App() {
   const [DRIP, setDRIP] = useState<boolean>(false);
   const [dripMulti, setDripMulti] = useState<number | null>(null);
 
-  const { data, loading } = useQuery(searchEtfsQuery, {
+  const { data, loading } = useQuery(searchDividendEtfsQuery, {
     variables: { search },
   });
 
@@ -60,7 +61,7 @@ function App() {
 
   useEffect(() => {
     if (data && selected) {
-      const filter = (data.searchEtfs as Array<Etf>).filter(
+      const filter = (data.searchDividendEtfs as Array<Etf>).filter(
         (x: Etf) => x.name === selected
       );
 
@@ -73,7 +74,8 @@ function App() {
     }
   }, [data, selected]);
 
-  const handleCalc = () => {
+  const handleCalc = (event: FormEvent) => {
+    event.preventDefault();
     if (etf && principalRef.current?.value !== undefined) {
       const yearlyGain =
         (+principalRef.current?.value / etf.price) *
@@ -86,7 +88,7 @@ function App() {
       const monthlyGain = yearlyGain / 12;
       const quarterlyGain = yearlyGain / 4;
       const DRIP = monthlyGain >= etf.price;
-      const multi = Math.round(monthlyGain / etf.price);
+      const multi = Math.floor(monthlyGain / etf.price);
 
       setYearly(yearlyGain);
       setMonthly(monthlyGain);
@@ -103,7 +105,7 @@ function App() {
       <h1 className="m-5 text-2xl text-green-700">ETF Dividend Calculator</h1>
       <Search
         loading={loading}
-        data={data ? data.searchEtfs.map((x: any) => x.name) : []}
+        data={data ? data.searchDividendEtfs.map((x: any) => x.name) : []}
         initialTerm={search}
         selected={selected}
         updateSearchTerm={setSearchDebounced}
@@ -128,21 +130,25 @@ function App() {
             />
           </div>
 
-          <div className="flex flex-col w-full justify-center items-center p-5">
+          <form
+            onSubmit={handleCalc}
+            className="flex flex-col w-full justify-center items-center p-5"
+          >
             <Input
               id="principal"
               type="number"
+              min="0"
+              step=".01"
               label="Enter Principal Amount"
               ref={principalRef}
             />
             <Button
               className=" border-2 border-green-700 text-green-700"
-              type="button"
-              onClick={handleCalc}
+              type="submit"
             >
               Calculate
             </Button>
-          </div>
+          </form>
 
           {yearly && monthly && quarterly && dripMulti !== null ? (
             <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
@@ -167,8 +173,10 @@ function App() {
       ) : (
         <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
           <p className="text-center">
-            Search Etfs to know how much dividend you can gain
+            Search Etfs to know how much dividend you can gain or punch in
+            sample data
           </p>
+          <Sample />
         </div>
       )}
     </>

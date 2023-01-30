@@ -5,6 +5,8 @@ interface InputProps {
   type: string;
   label: string;
   className?: string;
+  min?: string;
+  step?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
@@ -19,9 +21,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
       <input
         ref={ref}
         className={`border-b-2 border-solid border-b-slate-800 dark:border-b-slate-100 text-slate-900 dark:text-slate-200 bg-transparent outline-none ${props.className}`}
-        type={props.type}
-        name={props.id}
-        id={props.id}
+        {...props}
       />
     </div>
   );
