@@ -77,14 +77,11 @@ function App() {
   const handleCalc = (event: FormEvent) => {
     event.preventDefault();
     if (etf && principalRef.current?.value !== undefined) {
-      const yearlyGain =
-        (+principalRef.current?.value / etf.price) *
-        ((getTrueYield(etf.dividend_yield, etf.expense_ratio) / 100.0) *
-          etf.price) *
-        ((principalRef.current?.value === undefined
-          ? 0.0
-          : +principalRef.current?.value) /
-          1000.0);
+      const stockAmount = Math.floor(+principalRef.current?.value / etf.price);
+      const amountPerStock =
+        etf.price *
+        (getTrueYield(etf.dividend_yield, etf.expense_ratio) / 100.0);
+      const yearlyGain = stockAmount * amountPerStock;
       const monthlyGain = yearlyGain / 12;
       const quarterlyGain = yearlyGain / 4;
       const DRIP = monthlyGain >= etf.price;

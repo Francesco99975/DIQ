@@ -31,13 +31,13 @@ const Sample = () => {
         smp_principal.current?.value
       )
     ) {
-      const yearlyGain =
-        (+smp_principal.current?.value! / +smp_price.current?.value!) *
-        ((+smp_yield.current?.value! / 100.0) * +smp_price.current?.value!) *
-        ((+smp_principal.current?.value! === undefined
-          ? 0.0
-          : +smp_principal.current?.value!) /
-          1000.0);
+      const stockAmount = Math.floor(
+        +smp_principal.current?.value! / +smp_price.current?.value!
+      );
+      const amountPerStock =
+        +smp_price.current?.value! * (+smp_yield.current?.value! / 100.0);
+
+      const yearlyGain = stockAmount * amountPerStock;
 
       const monthlyGain = yearlyGain / 12;
       const quarterlyGain = yearlyGain / 4;
