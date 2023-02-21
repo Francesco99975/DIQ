@@ -3,7 +3,7 @@ interface IDetailProps {
   value: string;
 }
 
-const EtfDetail: React.FC<IDetailProps> = ({ label, value }) => {
+const AssetDetail: React.FC<IDetailProps> = ({ label, value }) => {
   return (
     <div className="flex justify-between items-center w-full">
       <span>{label}</span> <span>{value}</span>
@@ -11,4 +11,4 @@ const EtfDetail: React.FC<IDetailProps> = ({ label, value }) => {
   );
 };
 
-export default EtfDetail;
+export default AssetDetail;

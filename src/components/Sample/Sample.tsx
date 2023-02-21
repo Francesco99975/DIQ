@@ -1,5 +1,5 @@
 import { FormEvent, useRef, useState } from "react";
-import EtfDetail from "../Etf/EtfDetail";
+import EtfDetail from "../Asset/AssetDetail";
 import Button from "../UI/Button";
 import Input from "../UI/Input";
 
