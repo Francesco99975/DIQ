@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  diq:
+    container_name: diq
+    image: diq
+    ports:
+      - "5897:5897"

@@ -14,9 +14,9 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
+import axios from "axios";
 
-const searchDividendEtfsQuery = gql`
-  query SearchDividendEtfsQuery($search: String!) {
+const searchDividendEtfsQuery = `query SearchDividendEtfsQuery($search: String!) {
     searchDividendEtfs(search: $search) {
       symbol
       name
@@ -24,30 +24,25 @@ const searchDividendEtfsQuery = gql`
       dividend_yield
       expense_ratio
     }
-  }
-`;
+  }`;
 
-const searchDividendReitsQuery = gql`
-  query SearchDividendReitsQuery($search: String!) {
+const searchDividendReitsQuery = `query SearchDividendReitsQuery($search: String!) {
     searchDividendReits(search: $search) {
       symbol
       name
       price
       dividend_yield
     }
-  }
-`;
+  }`;
 
-const searchDividendStocksQuery = gql`
-  query SearchDividendStocksQuery($search: String!) {
+const searchDividendStocksQuery = `query SearchDividendStocksQuery($search: String!) {
     searchDividendStocks(search: $search) {
       symbol
       name
       price
       dividend_yield
     }
-  }
-`;
+  }`;
 
 const ASSET_TYPES = ["ETF", "REIT", "STOCK"];
 
@@ -59,8 +54,6 @@ const getTrueYield = (div_yield: string, expense: string) => {
 };
 
 function App() {
-  const [search, setSearch] = useState<string>("");
-  // const [selected, setSelected] = useState<string | null>(null);
   const [asset, setCurrentAsset] = useState<Asset | null>(null);
 
   const principalRef = useRef<HTMLInputElement>(null);
@@ -70,26 +63,98 @@ function App() {
   const [DRIP, setDRIP] = useState<boolean>(false);
   const [dripMulti, setDripMulti] = useState<number | null>(null);
 
-  const { data: etfData, loading: etfLoading } = useQuery(
-    searchDividendEtfsQuery,
-    {
-      variables: { search },
-    }
-  );
+  // const { data: etfData, loading: etfLoading } = useQuery(
+  //   searchDividendEtfsQuery,
+  //   {
+  //     variables: { search },
+  //   }
+  // );
 
-  const { data: reitData, loading: reitLoading } = useQuery(
-    searchDividendReitsQuery,
-    {
-      variables: { search },
-    }
-  );
+  // const { data: reitData, loading: reitLoading } = useQuery(
+  //   searchDividendReitsQuery,
+  //   {
+  //     variables: { search },
+  //   }
+  // );
 
-  const { data: stockData, loading: stockLoading } = useQuery(
-    searchDividendStocksQuery,
-    {
-      variables: { search },
+  // const { data: stockData, loading: stockLoading } = useQuery(
+  //   searchDividendStocksQuery,
+  //   {
+  //     variables: { search },
+  //   }
+  // );
+
+  const [searchEtf, setSearchEtf] = useState<string>("");
+  const [searchReit, setSearchReit] = useState<string>("");
+  const [searchStock, setSearchStock] = useState<string>("");
+
+  const [etfData, setEtfData] = useState<any>(undefined);
+  const [reitData, setReitData] = useState<any>(undefined);
+  const [stockData, setStockData] = useState<any>(undefined);
+
+  const [etfLoading, setEtfLoading] = useState(false);
+  const [reitLoading, setReitLoading] = useState(false);
+  const [stockLoading, setStockLoading] = useState(false);
+
+  const getEtfData = async () => {
+    try {
+      setEtfLoading(true);
+      const res = await axios.post("/graphql", {
+        // operationName: "searchDividendEtfsQuery",
+        query: searchDividendEtfsQuery,
+        variables: { search: searchEtf },
+      });
+      setEtfData(res.data);
+      setEtfLoading(false);
+    } catch (error) {
+      setEtfData(null);
+      setEtfLoading(false);
     }
-  );
+  };
+
+  const getReitData = async () => {
+    try {
+      setReitLoading(true);
+      const res = await axios.post("/graphql", {
+        // operationName: "searchDividendReitsQuery",
+        query: searchDividendReitsQuery,
+        variables: { search: searchReit },
+      });
+      setReitData(res.data);
+      setReitLoading(false);
+    } catch (error) {
+      setReitData(null);
+      setReitLoading(false);
+    }
+  };
+
+  const getStockData = async () => {
+    try {
+      setStockLoading(true);
+      const res = await axios.post("/graphql", {
+        // operationName: "searchDividendStocksQuery",
+        query: searchDividendStocksQuery,
+        variables: { search: searchStock },
+      });
+      setStockData(res.data);
+      setStockLoading(false);
+    } catch (error) {
+      setStockData(null);
+      setStockLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getEtfData();
+  }, [searchEtf]);
+
+  useEffect(() => {
+    getReitData();
+  }, [searchReit]);
+
+  useEffect(() => {
+    getStockData();
+  }, [searchStock]);
 
   const [assType, setAssType] = useState<string>(ASSET_TYPES[0]);
 
@@ -129,8 +194,6 @@ function App() {
     }
   };
 
-  const setSearchDebounced = debounce(setSearch, 500);
-
   return (
     <>
       <h1 className="m-5 text-2xl text-green-700">
@@ -157,8 +220,8 @@ function App() {
             label="Search ETFs"
             loading={etfLoading}
             data={etfData ? etfData.searchDividendEtfs.map((x: any) => x) : []}
-            initialTerm={search}
-            updateSearchTerm={setSearchDebounced}
+            initialTerm={searchEtf}
+            updateSearchTerm={debounce(setSearchEtf, 500)}
             setSelected={setCurrentAsset}
           ></Search>
         )}
@@ -170,8 +233,8 @@ function App() {
             data={
               stockData ? stockData.searchDividendStocks.map((x: any) => x) : []
             }
-            initialTerm={search}
-            updateSearchTerm={setSearchDebounced}
+            initialTerm={searchStock}
+            updateSearchTerm={debounce(setSearchStock, 500)}
             setSelected={setCurrentAsset}
           ></Search>
         )}
@@ -183,8 +246,8 @@ function App() {
             data={
               reitData ? reitData.searchDividendReits.map((x: any) => x) : []
             }
-            initialTerm={search}
-            updateSearchTerm={setSearchDebounced}
+            initialTerm={searchReit}
+            updateSearchTerm={debounce(setSearchReit, 500)}
             setSelected={setCurrentAsset}
           ></Search>
         )}
@@ -196,7 +259,10 @@ function App() {
             <h1>Information</h1>
             <AssetDetail label="Symbol" value={asset.symbol} />
             <AssetDetail label="Price" value={"$" + asset.price.toFixed(2)} />
-            <AssetDetail label="Full Yield" value={asset.dividend_yield} />
+            <AssetDetail
+              label="Full Dividend Yield"
+              value={asset.dividend_yield}
+            />
             {asset.expense_ratio && (
               <AssetDetail label="Expense Ratio" value={asset.expense_ratio} />
             )}
