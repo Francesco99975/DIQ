@@ -1,5 +1,6 @@
 import { FormEvent, useRef, useState } from "react";
-import EtfDetail from "../Asset/AssetDetail";
+import AssetDetail from "../Asset/AssetDetail";
+import { Compound } from "../Compound/Compound";
 import Button from "../UI/Button";
 import Input from "../UI/Input";
 
@@ -90,19 +91,27 @@ const Sample = () => {
       </form>
 
       {yearly && monthly && quarterly && dripMulti !== null ? (
-        <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
-          <h1>Results</h1>
-          <EtfDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
-          <EtfDetail label="Monthly" value={"$" + monthly.toFixed(2)} />
-          <EtfDetail label="Quarterly" value={"$" + quarterly.toFixed(2)} />
-          <EtfDetail
-            label="DRIP"
-            value={
-              (DRIP ? "YES" : "NO") +
-              (dripMulti > 0 ? "(x" + dripMulti + ")" : "")
-            }
-          />
-        </div>
+        <>
+          <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
+            <h1>Results</h1>
+            <AssetDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
+            <AssetDetail label="Monthly" value={"$" + monthly.toFixed(2)} />
+            <AssetDetail label="Quarterly" value={"$" + quarterly.toFixed(2)} />
+            <AssetDetail
+              label="DRIP"
+              value={
+                (DRIP ? "YES" : "NO") +
+                (dripMulti > 0 ? "(x" + dripMulti + ")" : "")
+              }
+            />
+          </div>
+
+          <Compound
+            principal={+smp_principal.current?.value!}
+            stockPrice={+smp_price.current?.value!}
+            dividendYield={+smp_yield.current?.value!}
+          ></Compound>
+        </>
       ) : (
         <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
           <p className="text-center">Results will be displayed here</p>

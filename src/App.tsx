@@ -1,6 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
 import { Search } from "./components/search/Search";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import debounce from "lodash/debounce";
 import Input from "./components/UI/Input";
 import Button from "./components/UI/Button";
@@ -15,6 +14,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import axios from "axios";
+import { Compound } from "./components/Compound/Compound";
 
 const searchDividendEtfsQuery = `query SearchDividendEtfsQuery($search: String!) {
     searchDividendEtfs(search: $search) {
@@ -55,34 +55,17 @@ const getTrueYield = (div_yield: string, expense: string) => {
 
 function App() {
   const [asset, setCurrentAsset] = useState<Asset | null>(null);
+  const [assType, setAssType] = useState<string>(ASSET_TYPES[0]);
 
   const principalRef = useRef<HTMLInputElement>(null);
+
   const [yearly, setYearly] = useState<number | null>(null);
   const [monthly, setMonthly] = useState<number | null>(null);
   const [quarterly, setQuarterly] = useState<number | null>(null);
   const [DRIP, setDRIP] = useState<boolean>(false);
   const [dripMulti, setDripMulti] = useState<number | null>(null);
-
-  // const { data: etfData, loading: etfLoading } = useQuery(
-  //   searchDividendEtfsQuery,
-  //   {
-  //     variables: { search },
-  //   }
-  // );
-
-  // const { data: reitData, loading: reitLoading } = useQuery(
-  //   searchDividendReitsQuery,
-  //   {
-  //     variables: { search },
-  //   }
-  // );
-
-  // const { data: stockData, loading: stockLoading } = useQuery(
-  //   searchDividendStocksQuery,
-  //   {
-  //     variables: { search },
-  //   }
-  // );
+  const [DRIPQ, setDRIPQ] = useState<boolean>(false);
+  const [dripMultiQ, setDripMultiQ] = useState<number | null>(null);
 
   const [searchEtf, setSearchEtf] = useState<string>("");
   const [searchReit, setSearchReit] = useState<string>("");
@@ -96,11 +79,10 @@ function App() {
   const [reitLoading, setReitLoading] = useState(false);
   const [stockLoading, setStockLoading] = useState(false);
 
-  const getEtfData = async () => {
+  const getEtfData = useCallback(async () => {
     try {
       setEtfLoading(true);
       const res = await axios.post("/graphql", {
-        // operationName: "searchDividendEtfsQuery",
         query: searchDividendEtfsQuery,
         variables: { search: searchEtf },
       });
@@ -110,13 +92,12 @@ function App() {
       setEtfData(null);
       setEtfLoading(false);
     }
-  };
+  }, [searchEtf]);
 
-  const getReitData = async () => {
+  const getReitData = useCallback(async () => {
     try {
       setReitLoading(true);
       const res = await axios.post("/graphql", {
-        // operationName: "searchDividendReitsQuery",
         query: searchDividendReitsQuery,
         variables: { search: searchReit },
       });
@@ -126,13 +107,12 @@ function App() {
       setReitData(null);
       setReitLoading(false);
     }
-  };
+  }, [searchReit]);
 
-  const getStockData = async () => {
+  const getStockData = useCallback(async () => {
     try {
       setStockLoading(true);
       const res = await axios.post("/graphql", {
-        // operationName: "searchDividendStocksQuery",
         query: searchDividendStocksQuery,
         variables: { search: searchStock },
       });
@@ -142,21 +122,19 @@ function App() {
       setStockData(null);
       setStockLoading(false);
     }
-  };
+  }, [searchStock]);
 
   useEffect(() => {
     getEtfData();
-  }, [searchEtf]);
+  }, [searchEtf, getEtfData]);
 
   useEffect(() => {
     getReitData();
-  }, [searchReit]);
+  }, [searchReit, getReitData]);
 
   useEffect(() => {
     getStockData();
-  }, [searchStock]);
-
-  const [assType, setAssType] = useState<string>(ASSET_TYPES[0]);
+  }, [searchStock, getStockData]);
 
   useEffect(() => {
     setYearly(null);
@@ -164,10 +142,27 @@ function App() {
     setQuarterly(null);
     setDRIP(false);
     setDripMulti(null);
+    setDRIPQ(false);
+    setDripMultiQ(null);
   }, [assType, asset]);
 
   const handleAssetChange = (event: SelectChangeEvent<string>) => {
-    setAssType(event.target.value);
+    setAssType((state) => {
+      switch (state) {
+        case ASSET_TYPES[0]:
+          setSearchEtf("");
+          break;
+        case ASSET_TYPES[1]:
+          setSearchReit("");
+          break;
+        case ASSET_TYPES[2]:
+          setSearchStock("");
+          break;
+        default:
+          break;
+      }
+      return event.target.value;
+    });
   };
 
   const handleCalc = (event: FormEvent) => {
@@ -185,12 +180,16 @@ function App() {
       const quarterlyGain = yearlyGain / 4;
       const DRIP = monthlyGain >= asset.price;
       const multi = Math.floor(monthlyGain / asset.price);
+      const DRIPQ = monthlyGain * 4 >= asset.price;
+      const multiQ = Math.floor((monthlyGain * 4) / asset.price);
 
       setYearly(yearlyGain);
       setMonthly(monthlyGain);
       setQuarterly(quarterlyGain);
       setDRIP(DRIP);
       setDripMulti(multi);
+      setDRIPQ(DRIPQ);
+      setDripMultiQ(multiQ);
     }
   };
 
@@ -298,23 +297,49 @@ function App() {
             </Button>
           </form>
 
-          {yearly && monthly && quarterly && dripMulti !== null ? (
-            <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
-              <h1>Results</h1>
-              <AssetDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
-              <AssetDetail label="Monthly" value={"$" + monthly.toFixed(2)} />
-              <AssetDetail
-                label="Quarterly"
-                value={"$" + quarterly.toFixed(2)}
-              />
-              <AssetDetail
-                label="DRIP"
-                value={
-                  (DRIP ? "YES" : "NO") +
-                  (dripMulti > 0 ? "(x" + dripMulti + ")" : "")
+          {yearly &&
+          monthly &&
+          quarterly &&
+          dripMulti !== null &&
+          dripMultiQ !== null ? (
+            <>
+              <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
+                <h1>Results</h1>
+                <AssetDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
+                <AssetDetail label="Monthly" value={"$" + monthly.toFixed(2)} />
+                <AssetDetail
+                  label="Quarterly"
+                  value={"$" + quarterly.toFixed(2)}
+                />
+                <AssetDetail
+                  label="DRIP"
+                  value={
+                    (DRIP ? "YES" : "NO") +
+                    (dripMulti > 0 ? "(x" + dripMulti + ")" : "")
+                  }
+                />
+                <AssetDetail
+                  label="Quarterly DRIP"
+                  value={
+                    (DRIPQ ? "YES" : "NO") +
+                    (dripMultiQ > 0 ? "(x" + dripMultiQ + ")" : "")
+                  }
+                />
+              </div>
+
+              <Compound
+                principal={+principalRef.current?.value!}
+                stockPrice={asset.price}
+                dividendYield={
+                  asset.expense_ratio
+                    ? getTrueYield(asset.dividend_yield, asset.expense_ratio)
+                    : +asset.dividend_yield.substring(
+                        0,
+                        asset.dividend_yield.length - 1
+                      )
                 }
-              />
-            </div>
+              ></Compound>
+            </>
           ) : (
             <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
               <p className="text-center">Results will be displayed here</p>
