@@ -256,9 +256,9 @@ function App() {
         <div className="flex flex-col w-full items-center">
           <div className="flex flex-col md:flex-row justify-between items-center w-full">
             <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
-              <h1>Information</h1>
+              <h1 className="text-lg underline">Information</h1>
               <AssetDetail label="Symbol" value={asset.symbol} />
-              <AssetDetail label="Price" value={"$" + asset.price.toFixed(2)} />
+              <AssetDetail label="Price" value={asset.price} />
               <AssetDetail
                 label="Full Dividend Yield"
                 value={asset.dividend_yield}
@@ -307,13 +307,10 @@ function App() {
             dripMulti !== null &&
             dripMultiQ !== null ? (
               <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
-                <h1>Results</h1>
-                <AssetDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
-                <AssetDetail label="Monthly" value={"$" + monthly.toFixed(2)} />
-                <AssetDetail
-                  label="Quarterly"
-                  value={"$" + quarterly.toFixed(2)}
-                />
+                <h1 className="text-lg underline">Results</h1>
+                <AssetDetail label="Yearly" value={yearly} />
+                <AssetDetail label="Monthly" value={monthly} />
+                <AssetDetail label="Quarterly" value={monthly} />
                 <AssetDetail
                   label="DRIP"
                   value={

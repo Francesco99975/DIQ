@@ -93,10 +93,10 @@ const Sample = () => {
       {yearly && monthly && quarterly && dripMulti !== null ? (
         <>
           <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
-            <h1>Results</h1>
-            <AssetDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
-            <AssetDetail label="Monthly" value={"$" + monthly.toFixed(2)} />
-            <AssetDetail label="Quarterly" value={"$" + quarterly.toFixed(2)} />
+            <h1 className="text-lg underline">Results</h1>
+            <AssetDetail label="Yearly" value={yearly} />
+            <AssetDetail label="Monthly" value={monthly} />
+            <AssetDetail label="Quarterly" value={quarterly} />
             <AssetDetail
               label="DRIP"
               value={

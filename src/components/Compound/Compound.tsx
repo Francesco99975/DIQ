@@ -95,7 +95,7 @@ export const Compound: React.FC<ICompundProps> = ({
   //   };
 
   return (
-    <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-300 text-black rounded-md">
+    <div className="flex flex-col w-full justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-300 text-black rounded-md">
       <form
         onSubmit={handleCompund}
         className="flex flex-col w-full justify-center items-center p-5"
@@ -161,19 +161,10 @@ export const Compound: React.FC<ICompundProps> = ({
       {totalContrib && cumDividends && finalBalance && totalReturn ? (
         <>
           <div className="flex flex-col w-[95%] justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-300 text-black rounded-md">
-            <h1>Results</h1>
-            <AssetDetail
-              label="Contributions"
-              value={"$" + totalContrib.toFixed(2)}
-            />
-            <AssetDetail
-              label="Profits"
-              value={"$" + cumDividends.toFixed(2)}
-            />
-            <AssetDetail
-              label="Final Balance"
-              value={"$" + finalBalance.toFixed(2)}
-            />
+            <h1 className="text-lg underline">Results</h1>
+            <AssetDetail label="Contributions" value={totalContrib} />
+            <AssetDetail label="Profits" value={cumDividends} />
+            <AssetDetail label="Final Balance" value={finalBalance} />
             <AssetDetail
               label="Total Return"
               value={totalReturn.toFixed(2) + "%"}
