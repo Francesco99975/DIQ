@@ -160,14 +160,14 @@ export const Compound: React.FC<ICompundProps> = ({
 
       {totalContrib && cumDividends && finalBalance && totalReturn ? (
         <>
-          <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-300 text-black rounded-md">
+          <div className="flex flex-col w-[95%] justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-300 text-black rounded-md">
             <h1>Results</h1>
             <AssetDetail
-              label="Your Total Contributions"
+              label="Contributions"
               value={"$" + totalContrib.toFixed(2)}
             />
             <AssetDetail
-              label="Your Total Dividend Gains"
+              label="Profits"
               value={"$" + cumDividends.toFixed(2)}
             />
             <AssetDetail

@@ -253,56 +253,59 @@ function App() {
       </div>
 
       {asset !== null ? (
-        <div className="flex flex-col md:flex-row justify-between items-center w-full">
-          <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
-            <h1>Information</h1>
-            <AssetDetail label="Symbol" value={asset.symbol} />
-            <AssetDetail label="Price" value={"$" + asset.price.toFixed(2)} />
-            <AssetDetail
-              label="Full Dividend Yield"
-              value={asset.dividend_yield}
-            />
-            {asset.expense_ratio && (
-              <AssetDetail label="Expense Ratio" value={asset.expense_ratio} />
-            )}
-            {asset.expense_ratio && (
+        <div className="flex flex-col w-full items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center w-full">
+            <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
+              <h1>Information</h1>
+              <AssetDetail label="Symbol" value={asset.symbol} />
+              <AssetDetail label="Price" value={"$" + asset.price.toFixed(2)} />
               <AssetDetail
-                label="True Yield"
-                value={
-                  getTrueYield(asset.dividend_yield, asset.expense_ratio)
-                    .toFixed(2)
-                    .toString() + "%"
-                }
+                label="Full Dividend Yield"
+                value={asset.dividend_yield}
               />
-            )}
-          </div>
+              {asset.expense_ratio && (
+                <AssetDetail
+                  label="Expense Ratio"
+                  value={asset.expense_ratio}
+                />
+              )}
+              {asset.expense_ratio && (
+                <AssetDetail
+                  label="True Yield"
+                  value={
+                    getTrueYield(asset.dividend_yield, asset.expense_ratio)
+                      .toFixed(2)
+                      .toString() + "%"
+                  }
+                />
+              )}
+            </div>
 
-          <form
-            onSubmit={handleCalc}
-            className="flex flex-col w-full justify-center items-center p-5"
-          >
-            <Input
-              id="principal"
-              type="number"
-              min="0"
-              step=".01"
-              label="Enter Principal Amount"
-              ref={principalRef}
-            />
-            <Button
-              className=" border-2 border-green-700 text-green-700"
-              type="submit"
+            <form
+              onSubmit={handleCalc}
+              className="flex flex-col w-full justify-center items-center p-5"
             >
-              Calculate
-            </Button>
-          </form>
+              <Input
+                id="principal"
+                type="number"
+                min="0"
+                step=".01"
+                label="Enter Principal Amount"
+                ref={principalRef}
+              />
+              <Button
+                className=" border-2 border-green-700 text-green-700"
+                type="submit"
+              >
+                Calculate
+              </Button>
+            </form>
 
-          {yearly &&
-          monthly &&
-          quarterly &&
-          dripMulti !== null &&
-          dripMultiQ !== null ? (
-            <>
+            {yearly &&
+            monthly &&
+            quarterly &&
+            dripMulti !== null &&
+            dripMultiQ !== null ? (
               <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
                 <h1>Results</h1>
                 <AssetDetail label="Yearly" value={"$" + yearly.toFixed(2)} />
@@ -326,7 +329,17 @@ function App() {
                   }
                 />
               </div>
-
+            ) : (
+              <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
+                <p className="text-center">Results will be displayed here</p>
+              </div>
+            )}
+          </div>
+          {yearly &&
+            monthly &&
+            quarterly &&
+            dripMulti !== null &&
+            dripMultiQ !== null && (
               <Compound
                 principal={+principalRef.current?.value!}
                 stockPrice={asset.price}
@@ -339,12 +352,7 @@ function App() {
                       )
                 }
               ></Compound>
-            </>
-          ) : (
-            <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
-              <p className="text-center">Results will be displayed here</p>
-            </div>
-          )}
+            )}
         </div>
       ) : (
         <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
