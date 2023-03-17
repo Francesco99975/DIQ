@@ -95,7 +95,8 @@ export const Compound: React.FC<ICompundProps> = ({
   //   };
 
   return (
-    <div className="flex flex-col w-full justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-300 text-black rounded-md">
+    <div className="flex flex-col w-full justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-800 text-black rounded-md">
+      <h1 className="text-lg underline">Calculate Compounding Dividends</h1>
       <form
         onSubmit={handleCompund}
         className="flex flex-col w-full justify-center items-center p-5"
@@ -151,7 +152,7 @@ export const Compound: React.FC<ICompundProps> = ({
         />
 
         <Button
-          className=" border-2 border-yellow-700 text-yellow-700"
+          className=" border-2 border-yellow-800 text-yellow-800"
           type="submit"
         >
           Calculate

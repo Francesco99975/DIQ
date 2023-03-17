@@ -253,7 +253,7 @@ function App() {
       </div>
 
       {asset !== null ? (
-        <div className="flex flex-col w-full items-center">
+        <div className="flex flex-col w-full items-center p-1">
           <div className="flex flex-col md:flex-row justify-between items-center w-full">
             <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-lime-200 border-green-700 text-green-700 rounded-md">
               <h1 className="text-lg underline">Information</h1>
@@ -310,7 +310,7 @@ function App() {
                 <h1 className="text-lg underline">Results</h1>
                 <AssetDetail label="Yearly" value={yearly} />
                 <AssetDetail label="Monthly" value={monthly} />
-                <AssetDetail label="Quarterly" value={monthly} />
+                <AssetDetail label="Quarterly" value={quarterly} />
                 <AssetDetail
                   label="DRIP"
                   value={
