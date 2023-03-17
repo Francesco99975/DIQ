@@ -14,6 +14,8 @@ const Sample = () => {
   const [quarterly, setQuarterly] = useState<number | null>(null);
   const [DRIP, setDRIP] = useState<boolean>(false);
   const [dripMulti, setDripMulti] = useState<number | null>(null);
+  const [DRIPQ, setDRIPQ] = useState<boolean>(false);
+  const [dripMultiQ, setDripMultiQ] = useState<number | null>(null);
 
   const isValid = (
     sp: string | undefined,
@@ -44,12 +46,16 @@ const Sample = () => {
       const quarterlyGain = yearlyGain / 4;
       const DRIP = monthlyGain >= +smp_price.current?.value!;
       const multi = Math.floor(monthlyGain / +smp_price.current?.value!);
+      const DRIPQ = monthlyGain * 4 >= +smp_price.current?.value!;
+      const multiQ = Math.floor((monthlyGain * 4) / +smp_price.current?.value!);
 
       setYearly(yearlyGain);
       setMonthly(monthlyGain);
       setQuarterly(quarterlyGain);
       setDRIP(DRIP);
       setDripMulti(multi);
+      setDRIPQ(DRIPQ);
+      setDripMultiQ(multiQ);
     }
   };
   return (
@@ -90,7 +96,11 @@ const Sample = () => {
         </Button>
       </form>
 
-      {yearly && monthly && quarterly && dripMulti !== null ? (
+      {yearly &&
+      monthly &&
+      quarterly &&
+      dripMulti !== null &&
+      dripMultiQ !== null ? (
         <>
           <div className="flex flex-col w-[80%] justify-center items-center p-2 m-5 border-2 bg-blue-300 border-blue-700 text-blue-700 rounded-md">
             <h1 className="text-lg underline">Results</h1>
@@ -102,6 +112,13 @@ const Sample = () => {
               value={
                 (DRIP ? "YES" : "NO") +
                 (dripMulti > 0 ? "(x" + dripMulti + ")" : "")
+              }
+            />
+            <AssetDetail
+              label="Quarterly DRIP"
+              value={
+                (DRIPQ ? "YES" : "NO") +
+                (dripMultiQ > 0 ? "(x" + dripMultiQ + ")" : "")
               }
             />
           </div>
