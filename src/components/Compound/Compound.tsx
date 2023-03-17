@@ -5,7 +5,7 @@
 //   Select,
 //   SelectChangeEvent,
 // } from "@mui/material";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import AssetDetail from "../Asset/AssetDetail";
 import Button from "../UI/Button";
 import Input from "../UI/Input";
@@ -26,6 +26,7 @@ export const Compound: React.FC<ICompundProps> = ({
   stockPrice,
   dividendYield,
 }) => {
+  const formRef = useRef<HTMLFormElement>(null);
   const extraRef = useRef<HTMLInputElement>(null);
   const divVarRef = useRef<HTMLInputElement>(null);
   const appriciationVarRef = useRef<HTMLInputElement>(null);
@@ -35,10 +36,18 @@ export const Compound: React.FC<ICompundProps> = ({
   //     DISTRIB_TYPE.MONTHLY
   //   );
 
-  const [totalContrib, setTotalContrib] = useState<number>(0);
-  const [cumDividends, setCumDividends] = useState<number>(0);
-  const [finalBalance, setFinalBalance] = useState<number>(0);
-  const [totalReturn, setTotalReturn] = useState<number>(0);
+  const [totalContrib, setTotalContrib] = useState<number | null>(null);
+  const [cumDividends, setCumDividends] = useState<number | null>(null);
+  const [finalBalance, setFinalBalance] = useState<number | null>(null);
+  const [totalReturn, setTotalReturn] = useState<number | null>(null);
+
+  useEffect(() => {
+    formRef.current?.reset();
+    setTotalContrib(null);
+    setCumDividends(null);
+    setFinalBalance(null);
+    setTotalReturn(null);
+  }, [principal, stockPrice, dividendYield]);
 
   const calculate = () => {
     if (
@@ -98,6 +107,7 @@ export const Compound: React.FC<ICompundProps> = ({
     <div className="flex flex-col w-full justify-center items-center p-2 m-5 border-2 bg-yellow-500 border-yellow-800 text-black rounded-md">
       <h1 className="text-lg underline">Calculate Compounding Dividends</h1>
       <form
+        ref={formRef}
         onSubmit={handleCompund}
         className="flex flex-col w-full justify-center items-center p-5"
       >
