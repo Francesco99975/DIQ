@@ -124,6 +124,7 @@ const Sample = () => {
           </div>
 
           <Compound
+            symbol="SAMPLE"
             principal={+smp_principal.current?.value!}
             stockPrice={+smp_price.current?.value!}
             dividendYield={+smp_yield.current?.value!}

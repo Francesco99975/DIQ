@@ -5,3 +5,13 @@ export interface IYearCompund {
   balance: string;
   intret: string;
 }
+
+export interface IParameters {
+  symbol: string;
+  principal: string;
+  price: string;
+  yield: string;
+  extra: string;
+  divVar: string;
+  appVar: string;
+}

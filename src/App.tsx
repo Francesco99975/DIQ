@@ -338,6 +338,7 @@ function App() {
             dripMulti !== null &&
             dripMultiQ !== null && (
               <Compound
+                symbol={asset.symbol}
                 principal={+principalRef.current?.value!}
                 stockPrice={asset.price}
                 dividendYield={

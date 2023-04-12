@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { IYearCompund } from "./types";
+import { IParameters, IYearCompund } from "./types";
 import * as csv from "csv-writer";
 import PDFDocument from "pdfkit-table";
 
@@ -21,7 +21,11 @@ export const generateCsv = async (data: IYearCompund[]) => {
   return timestamp;
 };
 
-export const generatePdf = async (data: IYearCompund[], doc: PDFDocument) => {
+export const generatePdf = async (
+  doc: PDFDocument,
+  data: IYearCompund[],
+  parameters: IParameters
+) => {
   const timestamp = Date.now().toString();
 
   doc.pipe(
@@ -32,8 +36,12 @@ export const generatePdf = async (data: IYearCompund[], doc: PDFDocument) => {
 
   // table
   const table = {
-    title: `${data.length} Years Compund Report`,
-    subtitle: `Generated on ${new Date(+timestamp).toLocaleString("en-US", {
+    title: `${data.length} Years Compund Report from ${parameters.symbol} at ${parameters.price}, with ${parameters.yield} dividend yield`,
+    subtitle: `Principal: ${parameters.principal} - Yearly Contribution: ${
+      parameters.extra
+    } - Yield Variation: ${parameters.divVar} - Price Variation: ${
+      parameters.appVar
+    }.\nReport generated on ${new Date(+timestamp).toLocaleString("en-US", {
       dateStyle: "long",
       timeStyle: "long",
     })}`,
@@ -65,6 +73,7 @@ export const generatePdf = async (data: IYearCompund[], doc: PDFDocument) => {
       header: { disabled: false, width: 2, opacity: 1 },
       horizontal: { disabled: false, width: 0.5, opacity: 0.5 },
     },
+    padding: [2, 2, 2, 2, 2],
   });
 
   return timestamp;

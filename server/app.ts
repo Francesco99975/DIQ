@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import axios from "axios";
 import console from "console";
-import { IYearCompund } from "./types";
+import { IParameters, IYearCompund } from "./types";
 import { generateCsv, generatePdf } from "./helpers";
 import path from "path";
 import fs from "fs";
@@ -54,8 +54,10 @@ app.post("/csv", async (req, res, next) => {
 app.post("/pdf", async (req, res, next) => {
   try {
     const data: IYearCompund[] = req.body.data;
+    const parameters: IParameters = req.body.parameters;
+
     let doc = new PDFDocument({ margin: 30, size: "A4" });
-    const timestamp = await generatePdf(data, doc);
+    const timestamp = await generatePdf(doc, data, parameters);
     doc.pipe(res);
     doc.end();
 

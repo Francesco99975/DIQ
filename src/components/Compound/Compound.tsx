@@ -14,6 +14,7 @@ import Input from "../UI/Input";
 import { numericFormatter } from "react-number-format";
 
 interface ICompundProps {
+  symbol: string;
   principal: number;
   stockPrice: number;
   dividendYield: number;
@@ -25,6 +26,7 @@ interface ICompundProps {
 // }
 
 export const Compound: React.FC<ICompundProps> = ({
+  symbol,
   principal,
   stockPrice,
   dividendYield,
@@ -122,7 +124,7 @@ export const Compound: React.FC<ICompundProps> = ({
   };
 
   const formatData = () => {
-    let data = [];
+    let formattedData = [];
     let format = {
       decimalScale: 2,
       thousandSeparator: ",",
@@ -130,7 +132,7 @@ export const Compound: React.FC<ICompundProps> = ({
       prefix: "$",
     };
     for (let index = 0; index < finalBalance.length; index++) {
-      data.push({
+      formattedData.push({
         year: (index + 1).toString(),
         contributions: numericFormatter(totalContrib[index].toString(), format),
         profits: numericFormatter(cumDividends[index].toString(), format),
@@ -139,7 +141,7 @@ export const Compound: React.FC<ICompundProps> = ({
       });
     }
 
-    return data;
+    return formattedData;
   };
 
   const handleCSV = async () => {
@@ -165,24 +167,51 @@ export const Compound: React.FC<ICompundProps> = ({
   };
 
   const handlePDF = async () => {
-    try {
-      setLoading(true);
-      const data = formatData();
+    if (
+      extraRef.current?.value !== undefined &&
+      divVarRef.current?.value !== undefined &&
+      appriciationVarRef.current?.value !== undefined &&
+      compoundingYearsRef.current?.value !== undefined
+    ) {
+      try {
+        setLoading(true);
+        let format = {
+          decimalScale: 2,
+          thousandSeparator: ",",
+          fixedDecimalScale: true,
+          prefix: "$",
+        };
+        const data = formatData();
 
-      const response = await axios.post(
-        "/pdf",
-        { data },
-        { responseType: "blob" }
-      );
+        const extra = +extraRef.current.value;
+        const divVar = +divVarRef.current.value;
+        const appVar = +appriciationVarRef.current.value;
 
-      fileDownload(
-        response.data,
-        `Compund_Report-${Date.now().toString()}.pdf`
-      );
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+        const parameters = {
+          symbol: symbol.replace(/ /g, ""),
+          principal: numericFormatter(principal.toString(), format),
+          price: numericFormatter(stockPrice.toString(), format),
+          yield: dividendYield.toFixed(2) + "%",
+          extra: numericFormatter(extra.toString(), format),
+          divVar: divVar.toFixed(2) + "%",
+          appVar: appVar.toFixed(2) + "%",
+        };
+
+        const response = await axios.post(
+          "/pdf",
+          { data, parameters },
+          { responseType: "blob" }
+        );
+
+        fileDownload(
+          response.data,
+          `Compund_Report-${Date.now().toString()}.pdf`
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
