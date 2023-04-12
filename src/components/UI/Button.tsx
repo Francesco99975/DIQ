@@ -1,11 +1,19 @@
 import { PropsWithChildren } from "react";
 
-const Button = (props: PropsWithChildren<any>) => {
+interface ButtonProps {
+  type: "button" | "submit" | "reset" | undefined;
+  onClick?: () => {};
+  className?: string;
+  disabled?: boolean;
+}
+
+const Button = (props: PropsWithChildren<ButtonProps>) => {
   return (
     <button
       className={`${props.className} p-2 mt-1 text-center w-full rounded`}
-      onClick={props.onClick}
       type={props.type}
+      onClick={props.onClick}
+      disabled={props.disabled}
     >
       {props.children}
     </button>

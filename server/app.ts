@@ -2,6 +2,11 @@ import express from "express";
 import dotenv from "dotenv";
 import axios from "axios";
 import console from "console";
+import { IYearCompund } from "./types";
+import { generateCsv, generatePdf } from "./helpers";
+import path from "path";
+import fs from "fs";
+import PDFDocument from "pdfkit-table";
 
 let result = dotenv.config();
 
@@ -18,6 +23,61 @@ app.use(express.json());
 
 app.get("/", (req, res, next) => {
   return res.sendFile(process.cwd() + "dist/build/index.html");
+});
+
+app.post("/csv", async (req, res, next) => {
+  try {
+    const data: IYearCompund[] = req.body.data;
+    const timestamp = await generateCsv(data);
+
+    // Delete File After 10 minutes from server
+    setTimeout(() => {
+      try {
+        fs.unlinkSync(
+          path.resolve(__dirname, `Compund_Report-${timestamp}.csv`)
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }, 600000);
+
+    return res.sendFile(
+      path.resolve(__dirname, `Compund_Report-${timestamp}.csv`)
+    );
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server Error while generating CSV", error });
+  }
+});
+
+app.post("/pdf", async (req, res, next) => {
+  try {
+    const data: IYearCompund[] = req.body.data;
+    let doc = new PDFDocument({ margin: 30, size: "A4" });
+    const timestamp = await generatePdf(data, doc);
+    doc.pipe(res);
+    doc.end();
+
+    // Delete File After 10 minutes from server
+    setTimeout(() => {
+      try {
+        fs.unlinkSync(
+          path.resolve(__dirname, `Compund_Report-${timestamp}.pdf`)
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }, 600000);
+
+    return res.sendFile(
+      path.resolve(__dirname, `Compund_Report-${timestamp}.pdf`)
+    );
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server Error while generating PDF", error });
+  }
 });
 
 app.post("/graphql", async (req, res, next) => {

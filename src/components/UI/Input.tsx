@@ -7,6 +7,7 @@ interface InputProps {
   className?: string;
   min?: string;
   step?: string;
+  defaultValue?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {

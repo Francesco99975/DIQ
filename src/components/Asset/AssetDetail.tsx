@@ -1,14 +1,14 @@
 import { NumericFormat } from "react-number-format";
 
 interface IDetailProps {
-  label: string;
+  label?: string;
   value: number | string;
 }
 
 const AssetDetail: React.FC<IDetailProps> = ({ label, value }) => {
   return (
     <div className="flex flex-col md:flex-row justify-between items-center w-full">
-      <span>{label}</span>{" "}
+      {label ? <span>{label} </span> : ""}
       {typeof value === "number" ? (
         <NumericFormat
           value={value}
