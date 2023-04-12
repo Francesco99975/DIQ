@@ -30,20 +30,21 @@ app.post("/csv", async (req, res, next) => {
     const data: IYearCompund[] = req.body.data;
     const timestamp = await generateCsv(data);
 
+    const fileLocation = path.resolve(
+      __dirname,
+      `Compund_Report-${timestamp}.csv`
+    );
+
     // Delete File After 10 minutes from server
     setTimeout(() => {
       try {
-        fs.unlinkSync(
-          path.resolve(__dirname, `Compund_Report-${timestamp}.csv`)
-        );
+        fs.unlinkSync(fileLocation);
       } catch (error) {
         console.log(error);
       }
     }, 600000);
 
-    return res.sendFile(
-      path.resolve(__dirname, `Compund_Report-${timestamp}.csv`)
-    );
+    return res.sendFile(fileLocation);
   } catch (error) {
     return res
       .status(500)
@@ -56,25 +57,26 @@ app.post("/pdf", async (req, res, next) => {
     const data: IYearCompund[] = req.body.data;
     const parameters: IParameters = req.body.parameters;
 
-    let doc = new PDFDocument({ margin: 30, size: "A4" });
+    let doc = new PDFDocument({ margin: 30, size: "A4", pdfVersion: "1.7" });
+    doc.pipe(res.setHeader("Content-Type", "application/pdf"));
     const timestamp = await generatePdf(doc, data, parameters);
-    doc.pipe(res);
     doc.end();
+
+    const fileLocation = path.resolve(
+      __dirname,
+      `Compund_Report-${timestamp}.pdf`
+    );
 
     // Delete File After 10 minutes from server
     setTimeout(() => {
       try {
-        fs.unlinkSync(
-          path.resolve(__dirname, `Compund_Report-${timestamp}.pdf`)
-        );
+        fs.unlinkSync(fileLocation);
       } catch (error) {
         console.log(error);
       }
     }, 600000);
 
-    return res.sendFile(
-      path.resolve(__dirname, `Compund_Report-${timestamp}.pdf`)
-    );
+    return res.sendFile(fileLocation);
   } catch (error) {
     return res
       .status(500)
